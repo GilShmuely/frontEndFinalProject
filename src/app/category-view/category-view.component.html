@@ -1,0 +1,9 @@
+<div class="header-container">
+    <h1>Let's Play</h1>
+  </div>
+  <div class="container">
+    <div *ngFor="let cat of allCategories" class="cardContained">
+      <app-category-card [currentCategory]="cat" class="inCard"></app-category-card>
+    </div>
+  </div>
+  

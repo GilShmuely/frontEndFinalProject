@@ -1,0 +1,19 @@
+<div class="gameDialog">
+    <h4>Choose game to play</h4>
+    <mat-form-field class="formDialog">
+        <mat-label>Choose an option</mat-label>
+        <mat-select [(ngModel)]="currentGame">
+            <mat-option *ngFor="let g of games" [value]="g">{{g.name}}</mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <div *ngIf="currentGame" class="game-details-container">
+        <div>
+            Difficulty: {{currentGame.difficulty}}
+        </div>
+        <div>
+            Description: {{currentGame.description}}
+        </div>
+    </div>
+    <button mat-raised-button color="primary" (click)="chooseGame(currentGame)">Play</button>
+</div>

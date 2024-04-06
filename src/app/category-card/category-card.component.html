@@ -1,0 +1,6 @@
+<mat-card>
+    <mat-card-content class="card" (click)="openDialog()"><mat-icon *ngIf="isUpdatedWithinLastWeek(currentCategory?.lastUpdate)" style="color: darkorange;">star_rate</mat-icon>
+        {{currentCategory?.name}}<br>
+        {{currentCategory?.words?.length + " Words"}}
+    </mat-card-content>
+</mat-card>
