@@ -20,7 +20,7 @@ peopleCategory.words.push(new TranslatedWord("dad", "אבא"));
 
 let placesCategory =
     new Category(3, "Places", Language.English, Language.Hebrew, new Date());
-placesCategory.words.push(new TranslatedWord("forst", "יער"));
+placesCategory.words.push(new TranslatedWord("forest", "יער"));
 placesCategory.words.push(new TranslatedWord("school", "בית ספר"));
 placesCategory.words.push(new TranslatedWord("classroom", "כיתה"));
 placesCategory.words.push(new TranslatedWord("town", "עיר"));

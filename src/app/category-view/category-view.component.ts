@@ -21,5 +21,11 @@ export class CategoryViewComponent implements OnInit {
   ngOnInit() :void{
     this.allCategories = this.categoryService.list();
     console.log(this.allCategories)
+    console.log('Categories:', this.allCategories);
+    console.log('Categories:', this.allCategories[0].words);
+    
+  }
+  openGameDialog(category: Category){
+    console.log('Selected category:', category);
   }
 }

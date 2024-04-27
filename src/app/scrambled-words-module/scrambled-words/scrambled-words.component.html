@@ -1,0 +1,23 @@
+<div class="container">
+    <button mat-raised-button color="primary" (click)="openDialog()">
+        <mat-icon>exit_to_app</mat-icon>
+    </button>
+    <h1>Mixed Letters - {{currentCategory?.name}}</h1>
+    <app-current-points></app-current-points>
+</div>
+<div class="container">
+    <div class="word-container">
+        <h2>Current Word</h2>
+        <div *ngIf="currentWord">
+            <p>{{ currentWord.target }}</p>
+            <p>{{ scrambledWord }}</p>
+           <div class="input">
+            <mat-form-field appearance="fill">
+                <mat-label>Enter your guess</mat-label>
+                <input matInput [(ngModel)]="userInput" placeholder="Write the right order for this word">
+              </mat-form-field>
+        </div>
+        <mat-progress-bar mode="determinate" [value]="progress"></mat-progress-bar>
+        </div>
+        <button mat-raised-button (click)="onSubmit(userInput)">Submit</button>
+    </div> 

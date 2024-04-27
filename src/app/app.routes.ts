@@ -3,7 +3,7 @@ import { CategoriesListComponent } from './categories-list/categories-list.compo
 import { CategoryFormComponent } from './category-form/category-form.component';
 import { CategoryViewComponent } from './category-view/category-view.component';
 import { MatchingGameComponent } from './matching-game/matching-game.component';
-import { ScrambledWordsComponent } from './scrambled-words/scrambled-words.component';
+import { ScrambledWordsComponent } from './scrambled-words-module/scrambled-words/scrambled-words.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 
 export const routes: Routes = [
@@ -14,4 +14,5 @@ export const routes: Routes = [
     {path: "newcategory", component: CategoryFormComponent},
     {path: "matching", component: MatchingGameComponent},
     {path: "scrambled", component: ScrambledWordsComponent}
+        
 ];

@@ -20,7 +20,7 @@ export class CategoryCardComponent {
    }
  openDialog(){
   this.matDialog.open(GameDialogComponent, {
-    data: {category: this.currentCategory?.name}
+    data: { category: this.currentCategory } 
  });}
 
 

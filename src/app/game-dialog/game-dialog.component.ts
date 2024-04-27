@@ -9,6 +9,7 @@ import { GameProfile } from '../../shared/model/game-profile';
 import { CommonModule} from '@angular/common';
 import { MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { Category } from '../../shared/model/category';
 
 @Component({
   selector: 'app-game-dialog',
@@ -27,12 +28,14 @@ export class GameDialogComponent {
   games: GameProfile[] = [];
   currentGame? : GameProfile;
   currentCategory = this.data.category;
-  constructor(private GameDataService:GameDataService, private router: Router,   private dialogRef: MatDialogRef<GameDialogComponent>,     @Inject(MAT_DIALOG_DATA) public data: { category: string }
+  constructor(private GameDataService:GameDataService, private router: Router,   private dialogRef: MatDialogRef<GameDialogComponent>,     @Inject(MAT_DIALOG_DATA) public data: { category: Category }
 
 ){}
   ngOnInit() :void{
     this.games = this.GameDataService.list();
     console.log(this.games)
+    console.log(this.currentCategory);
+    console.log('Words in Current Category:', this.currentCategory?.words);  // Check if words are defined
   }
   close() {
     this.dialogRef.close();
@@ -51,4 +54,5 @@ export class GameDialogComponent {
       this.dialogRef.close()
     }
    }
+   
 }
