@@ -14,6 +14,8 @@ import { SuccessDialogComponent } from '../../success-dialog/success-dialog.comp
 import { DialogRef } from '@angular/cdk/dialog';
 import {MatInputModule} from '@angular/material/input';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
+import { gamePLayed } from '../../../shared/model/game-played';
+import { GamePointsService } from '../../../services/game-points-service.service';
 
 
 
@@ -34,8 +36,10 @@ export class ScrambledWordsComponent implements OnInit {
   scrambledWord: string = '';
   userInput: string = '';
   progress: number = 0;
+  gamePlayed: gamePLayed[] = [];
+  score: number = 0;
 
-  constructor(public dialog: MatDialog, private router: Router) {
+  constructor(public dialog: MatDialog, private router: Router ,private gamePointsService: GamePointsService) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation && navigation.extras.state) {
       this.currentCategory = (navigation.extras.state as { category: Category }).category;
@@ -44,7 +48,10 @@ export class ScrambledWordsComponent implements OnInit {
   ngOnInit(): void {
     console.log('Current category:', this.currentCategory);
     this.updateCurrentWord();
+    if (this.currentCategory && this.currentCategory.words) {
+      this.shuffleArray(this.currentCategory.words);
   }
+    }
 
 
   openDialog(): void {
@@ -61,10 +68,7 @@ export class ScrambledWordsComponent implements OnInit {
 
   updateCurrentWord() {
     if (this.currentCategory && this.currentCategory.words.length > this.currentWordIndex) {
-      // Shuffle words array
-      this.shuffleArray(this.currentCategory.words);
 
-      // Select the word at the current index
       this.currentWord = this.currentCategory.words[this.currentWordIndex];
       this.scrambledWord = this.scrambleString(this.currentWord.origin);  // Rescramble the word
     } else {
@@ -89,16 +93,20 @@ export class ScrambledWordsComponent implements OnInit {
     return arr.join('').toLocaleUpperCase();
   }
   nextWord() {
-    if (this.currentCategory && this.currentWordIndex < this.currentCategory.words.length - 1) {
-      this.currentWordIndex++;
-      this.updateCurrentWord();
-      if (this.currentWord) {
-        this.scrambledWord = this.scrambleString(this.currentWord.origin);
-      }
-    } else {
-      console.log('No more words to display');
+  if (this.currentCategory && this.currentWordIndex < this.currentCategory.words.length - 1) {
+    this.currentWordIndex++;
+    this.updateCurrentWord();
+    if (this.currentWord) {
+      this.scrambledWord = this.scrambleString(this.currentWord.origin);
+    }
+  } else {
+    if (this.currentCategory) {
+      let newGame = new gamePLayed(this.currentCategory.id, this.gamePointsService.getNewGameId(), new Date(), this.score);
+      this.gamePointsService.addGamePlayed(newGame);
+      this.router.navigate(['/summaryscrambled']);
     }
   }
+}
 
   onSubmit(userInput: string) {
     userInput = userInput.toLocaleUpperCase();
@@ -108,7 +116,7 @@ export class ScrambledWordsComponent implements OnInit {
       width: '250px',
       data: {
         success: userInput === correctWord,
-        message: userInput === correctWord ? 'You guessed right!' : 'Incorrect guess, try again!'
+        message: userInput === correctWord ? 'You guessed right! + 1 point' : 'Incorrect guess, -1 point!'
       }
     }
     );
@@ -118,9 +126,18 @@ export class ScrambledWordsComponent implements OnInit {
       this.nextWord();
       this.userInput = '';
       this.progress += 100 / (this.currentCategory?.words.length || 1);
-
+      if (result === true) {
+        this.score++;
+      }else{
+        this.score--;
+      }
 
     });
   }
 
+  clearInput() {
+    this.userInput = '';
+    console.log(this.score);
+    
+  }
 }

@@ -5,6 +5,7 @@ import { CategoryViewComponent } from './category-view/category-view.component';
 import { MatchingGameComponent } from './matching-game/matching-game.component';
 import { ScrambledWordsComponent } from './scrambled-words-module/scrambled-words/scrambled-words.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { SummaryDashComponent } from './scrambled-words-module/summary-dash/summary-dash.component';
 
 export const routes: Routes = [
     {path: "", component: DashboardComponent},
@@ -13,6 +14,7 @@ export const routes: Routes = [
     {path: "category/:id", component: CategoryFormComponent},
     {path: "newcategory", component: CategoryFormComponent},
     {path: "matching", component: MatchingGameComponent},
-    {path: "scrambled", component: ScrambledWordsComponent}
-        
+    {path: "scrambled", component: ScrambledWordsComponent},
+    {path: "summaryscrambled", component: SummaryDashComponent}
+
 ];

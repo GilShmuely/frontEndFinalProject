@@ -5,12 +5,16 @@ import { Injectable } from '@angular/core';
 })
 export class GamePointsService {
   private GamePlayed: any[]; 
+  private gameID = 0;
 
   constructor() {
     this.GamePlayed = [];
     this.loadGames();
   }
-
+  getNewGameId(): number {
+    this.gameID++;
+    return this.gameID;
+  }
   getGamePlayed() {
     return this.GamePlayed;
   }
