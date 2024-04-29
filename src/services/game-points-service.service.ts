@@ -32,4 +32,8 @@ export class GamePointsService {
     const games = localStorage.getItem('gamePlayed');
     this.GamePlayed = games ? JSON.parse(games) : [];
   }
+
+  getLatestGame() {
+    return this.GamePlayed.length > 0 ? this.GamePlayed[this.GamePlayed.length - 1] : null;
+  }
 }
