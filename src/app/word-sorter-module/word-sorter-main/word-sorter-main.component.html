@@ -1,1 +1,9 @@
-<p>word-sorter-main works!</p>
+<div class="container">
+    <h1>Word sorter - {{currentCategory?.name}}</h1>
+    <p>Is word <strong>{{randomWords[currentWordIndex]}}</strong> part of the
+        <strong>{{currentCategory?.name}}</strong> category?
+    </p>
+    <button mat-raised-button color="primary" (click)="openDialog(true)">Yes</button>
+    <button mat-raised-button color="primary" (click)="openDialog(false)">No</button>
+</div>
+<mat-progress-bar mode="determinate" [value]="progress" class="progress"></mat-progress-bar>

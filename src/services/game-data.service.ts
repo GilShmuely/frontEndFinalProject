@@ -6,8 +6,9 @@ import { GameDifficulty } from '../shared/model/game-difficulty';
   providedIn: 'root'
 })
 export class GameDataService {
-  private games: GameProfile[] = [new GameProfile('1', 'Matching Game',GameDifficulty.HARD, "Choose every word's translation from a list of 4 optionns",'matching'),
-  new GameProfile('2', "Scrambled words", "Description of scrambled words games ", GameDifficulty.EASY, "scrambled") ];
+  private games: GameProfile[] = [new GameProfile('1', 'Matching Game', GameDifficulty.HARD, "Choose every word's translation from a list of 4 optionns", 'matching'),
+  new GameProfile('2', "Scrambled words", "Description of scrambled words games ", GameDifficulty.EASY, "scrambled"),
+  new GameProfile('3', "Word Sorter", "Description of word sorter game", GameDifficulty.MEDIUM, "sorter")];
 
   constructor() { }
 

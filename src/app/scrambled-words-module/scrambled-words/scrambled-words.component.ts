@@ -106,7 +106,7 @@ export class ScrambledWordsComponent implements OnInit {
       if (this.currentCategory) {
         let newGame = new gamePLayed(this.currentCategory.id, this.gamePointsService.getNewGameId(), new Date(), this.score);
         this.gamePointsService.addGamePlayed(newGame);
-        this.router.navigate(['/summaryscrambled'], { state: { category: this.currentCategory ,
+        this.router.navigate(['/sumscram'], { state: { category: this.currentCategory ,
           guesses: this.guesses
         } });
 
