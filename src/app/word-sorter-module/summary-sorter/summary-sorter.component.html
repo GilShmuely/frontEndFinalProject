@@ -1,7 +1,7 @@
 <div class="container" *ngIf="getLatestGame()">
     <h1>Scrumbled letters - {{currentCategory?.name}} - Results</h1>
     <p>Grade: {{ getLatestGame().score }}</p>
-    <p>You translated {{correctWords}} out of {{randomWords}} words correctly</p>
+    <p>You clasified {{correctWords}} out of {{randomWords}} words correctly</p>
     <table mat-table [dataSource]="guesses" class="mat-elevation-z8">
         <!-- Origin Column -->
         <ng-container matColumnDef="origin">
@@ -12,7 +12,7 @@
         <!-- User Input Column -->
         <ng-container matColumnDef="userInput">
             <th mat-header-cell *matHeaderCellDef> User Input </th>
-            <td mat-cell *matCellDef="let guess"> {{guess.userInput}} </td>
+            <td mat-cell *matCellDef="let guess"> {{guess.Category}} </td>
         </ng-container>
 
         <!-- Is Correct Column -->
@@ -29,4 +29,5 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
+    <button mat-raised-button color="primary" (click)="newGame()">New game</button>
 </div>

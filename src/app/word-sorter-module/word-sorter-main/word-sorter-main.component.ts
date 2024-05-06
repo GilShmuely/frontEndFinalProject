@@ -65,7 +65,15 @@ export class WordSorterMainComponent implements OnInit {
       console.log('Creating newGame');
       if (this.currentCategory) {
         let newGame = new gamePLayed(this.currentCategory.id, this.gamePointsService.getNewGameId(), new Date(), this.grade);
-        this.router.navigate(['/sumsort'], { state: { category: this.currentCategory } });
+        this.gamePointsService.addGamePlayed(newGame);
+        console.log('newGame:', newGame);
+        this.router.navigate(['/sumsort'], {
+          state: {
+            category: this.currentCategory,
+            guesses: this.guesses
+          }
+        });
+
       }
     }
     console.log('grade:', this.grade);
@@ -73,11 +81,27 @@ export class WordSorterMainComponent implements OnInit {
 
   openDialog(userClickedYes: boolean): void {
     const correct = this.isCorrectWord();
+
+    let wordCategory = '';
+    for (let category of this.allCategories) {
+      if (category.words.some(word => word.origin === this.randomWords[this.currentWordIndex])) {
+        wordCategory = category.name;
+        break;
+      }
+    }
+
+    this.guesses.push({
+      origin: this.randomWords[this.currentWordIndex],
+      Category: wordCategory,
+      isCorrect: correct
+    });
+
     let success = false;
     if ((userClickedYes && correct) || (!userClickedYes && !correct)) {
       success = true;
       this.grade++;
     }
+
     const dialogRef = this.dialog.open(SuccessDialogComponent, {
       width: '250px',
       data: {
@@ -97,11 +121,12 @@ export class WordSorterMainComponent implements OnInit {
     });
   }
 
+
   isCorrectWord(): boolean {
     if (this.currentCategory && this.randomWords.length > this.currentWordIndex) {
       return this.currentCategory.words.map(word => word.origin).includes(this.randomWords[this.currentWordIndex]);
     }
-    return false;  
+    return false;
   }
 
   shuffleArray(array: any[]): any[] {
