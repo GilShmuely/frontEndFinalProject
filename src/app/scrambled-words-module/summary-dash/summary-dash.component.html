@@ -2,6 +2,12 @@
     <h1>Scrumbled letters - {{currentCategory?.name}} - Results</h1>
     <p>Grade: {{ getLatestGame().score }}</p>
     <p>You translated {{correctGuesses}} out of {{totalWords}} words correctly</p>
+    <div>
+        <h3>Game Metrics</h3>
+        <p>Average Game Duration: {{ averageGameDuration | number:'1.0-0' }} seconds</p>
+        <p>Total Play Time: {{ totalPlayTime | number:'1.0-0' }} seconds</p>
+        <p>Completion Rate: {{ completionRate | number:'1.0-2' }}%</p>
+      </div>
     <table mat-table [dataSource]="guesses" class="mat-elevation-z8">
         <!-- Origin Column -->
         <ng-container matColumnDef="origin">

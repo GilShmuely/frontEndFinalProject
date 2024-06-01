@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Category } from '../../../shared/model/category';
-import { gamePLayed } from '../../../shared/model/game-played';
+import { GamePlayed } from '../../../shared/model/game-played';
 import { GamePointsService } from '../../../services/game-points-service.service';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
@@ -11,18 +11,21 @@ import { MatButtonModule } from '@angular/material/button';
 @Component({
   selector: 'app-summary-dash',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatIconModule,MatButtonModule],
+  imports: [CommonModule, MatTableModule, MatIconModule, MatButtonModule],
   templateUrl: './summary-dash.component.html',
   styleUrl: './summary-dash.component.css'
 })
 export class SummaryDashComponent implements OnInit {
   currentCategory: Category | undefined;
   score: number = 0;
-  lastGame: gamePLayed | undefined;
+  lastGame: GamePlayed | undefined;
   guesses: { origin: string, userInput: string, isCorrect: boolean }[] = [];
   totalWords: number = 0;
   displayedColumns: string[] = ['origin', 'userInput', 'isCorrect'];
   correctGuesses: number = 0;
+  averageGameDuration: number = 0;
+  totalPlayTime: number = 0;;
+  completionRate: number = 0;;
 
   constructor(private router: Router, private gameService: GamePointsService) {
     const navigation = this.router.getCurrentNavigation(); if (navigation && navigation.extras.state) {
@@ -37,9 +40,7 @@ export class SummaryDashComponent implements OnInit {
     console.log('Latest game:', this.gameService.getLatestGame())
     console.log(this.guesses);
     console.log('Correct guesses:', this.correctGuesses);
-
-
-
+    
     console.log('Current category:', this.currentCategory);
 
   }
@@ -50,5 +51,13 @@ export class SummaryDashComponent implements OnInit {
   newGame() {
     this.router.navigate(['play']);
   }
+  calculateMetrics(games: any[]): void {
+    const totalGames = games.length;
+    const totalDuration = games.reduce((acc, game) => acc + game.secondsPlayed, 0);
+    const completedGames = games.filter(game => game.secondsLeftInGame === 0).length;
 
+    this.averageGameDuration = totalDuration / totalGames;
+    this.totalPlayTime = totalDuration;
+    this.completionRate = (completedGames / totalGames) * 100;
+  }
 }

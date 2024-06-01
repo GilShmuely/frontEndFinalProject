@@ -15,4 +15,6 @@ export class GameDataService {
   list(): GameProfile[] {
     return Array.from(this.games.values());
   }
+  
+
 }

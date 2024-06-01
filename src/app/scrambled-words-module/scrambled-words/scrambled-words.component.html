@@ -1,3 +1,4 @@
+<app-timer [difficulty]="difficulty" (reportTimeLeft)="updateTimeLeft($event)"></app-timer>
 <div class="container">
     <button mat-raised-button color="primary" (click)="openDialog()">
         <mat-icon>exit_to_app</mat-icon>

@@ -7,18 +7,20 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { CommonModule } from '@angular/common';
 import { SuccessDialogComponent } from '../../success-dialog/success-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
-import { gamePLayed } from '../../../shared/model/game-played';
+import { GamePlayed } from '../../../shared/model/game-played';
 import { GamePointsService } from '../../../services/game-points-service.service';
+import { TimerComponent } from "../../time-management/timer/timer.component";
+
 @Component({
   selector: 'app-word-sorter-main',
   standalone: true,
-  imports: [MatButtonModule, MatProgressBarModule, CommonModule],
   templateUrl: './word-sorter-main.component.html',
-  styleUrl: './word-sorter-main.component.css'
+  styleUrls: ['./word-sorter-main.component.css'],
+  imports: [MatButtonModule, MatProgressBarModule, CommonModule, TimerComponent]
 })
 export class WordSorterMainComponent implements OnInit {
   currentCategory: Category | undefined;
-  allCategories = this.categoryService.list()
+  allCategories = this.categoryService.list();
   allWords: string[] = [];
   randomWords: string[] = [];
   progress: number = 0;
@@ -27,7 +29,9 @@ export class WordSorterMainComponent implements OnInit {
   guesses: { origin: string, Category: string, isCorrect: boolean }[] = [];
   userInput: string = '';
   grade: number = 0;
-
+  gameDuration = 300; // Example duration in seconds (5 minutes)
+  timeLeft: number = this.gameDuration;
+  difficulty: string = 'medium'; 
 
   constructor(private router: Router, private categoryService: CategoriesService, private dialog: MatDialog, private gamePointsService: GamePointsService) {
     const navigation = this.router.getCurrentNavigation();
@@ -36,6 +40,7 @@ export class WordSorterMainComponent implements OnInit {
     }
     this.allWords = this.allCategories.flatMap(category => category.words.map(word => word.origin));
   }
+
   ngOnInit(): void {
     if (this.currentCategory) {
       this.randomWords = this.shuffleArray([
@@ -44,6 +49,7 @@ export class WordSorterMainComponent implements OnInit {
       ]);
     }
   }
+
   getRandomWords(words: string[], count: number): string[] {
     let result = [];
     for (let i = 0; i < count; i++) {
@@ -63,8 +69,15 @@ export class WordSorterMainComponent implements OnInit {
       this.currentWordIndex++;
     } else {
       console.log('Creating newGame');
-      if (this.currentCategory) {
-        let newGame = new gamePLayed(this.currentCategory.id, this.gamePointsService.getNewGameId(), new Date(), this.grade);
+      if (this.currentCategory && this.timeLeft !== undefined) {
+        let newGame = new GamePlayed(
+          this.currentCategory.id,
+          this.gamePointsService.getNewGameId(),
+          new Date(),
+          this.grade,
+          this.gameDuration - this.timeLeft,
+          this.gameDuration
+        );
         this.gamePointsService.addGamePlayed(newGame);
         console.log('newGame:', newGame);
         this.router.navigate(['/sumsort'], {
@@ -73,7 +86,8 @@ export class WordSorterMainComponent implements OnInit {
             guesses: this.guesses
           }
         });
-
+      } else {
+        console.error('currentCategory or timeLeft is undefined');
       }
     }
     console.log('grade:', this.grade);
@@ -121,7 +135,6 @@ export class WordSorterMainComponent implements OnInit {
     });
   }
 
-
   isCorrectWord(): boolean {
     if (this.currentCategory && this.randomWords.length > this.currentWordIndex) {
       return this.currentCategory.words.map(word => word.origin).includes(this.randomWords[this.currentWordIndex]);
@@ -135,5 +148,16 @@ export class WordSorterMainComponent implements OnInit {
       [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
+  }
+
+  updateTimeLeft(timeLeft: number) {
+    this.timeLeft = timeLeft;
+    if (timeLeft === 0) {
+      this.endGame();
+    }
+  }
+
+  endGame() {
+    // Logic to handle end of game
   }
 }

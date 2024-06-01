@@ -14,21 +14,19 @@ import { SuccessDialogComponent } from '../../success-dialog/success-dialog.comp
 import { DialogRef } from '@angular/cdk/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { gamePLayed } from '../../../shared/model/game-played';
+import { GamePlayed } from '../../../shared/model/game-played';
 import { GamePointsService } from '../../../services/game-points-service.service';
 import { state } from '@angular/animations';
-
-
-
-
-
+import { TimerComponent } from "../../time-management/timer/timer.component";
+import { GameProfile } from '../../../shared/model/game-profile';
+import { GameDifficulty } from '../../../shared/model/game-difficulty';
 
 @Component({
   selector: 'app-scrambled-words',
   standalone: true,
   templateUrl: './scrambled-words.component.html',
-  styleUrl: './scrambled-words.component.css',
-  imports: [MatDialogModule, MatButtonModule, CurrentPointsComponent, MatIconModule, CommonModule, FormsModule, MatInputModule, MatProgressBarModule]
+  styleUrls: ['./scrambled-words.component.css'],
+  imports: [MatDialogModule, MatButtonModule, CurrentPointsComponent, MatIconModule, CommonModule, FormsModule, MatInputModule, MatProgressBarModule, TimerComponent]
 })
 export class ScrambledWordsComponent implements OnInit {
   currentCategory: Category | undefined;
@@ -37,10 +35,14 @@ export class ScrambledWordsComponent implements OnInit {
   scrambledWord: string = '';
   userInput: string = '';
   progress: number = 0;
-  gamePlayed: gamePLayed[] = [];
+  gamePlayed: GamePlayed[] = [];
   score: number = 0;
   guesses: { origin: string, userInput: string, isCorrect: boolean }[] = [];
   correctGuesses: number = 0;
+  currentGame: GameProfile | undefined;
+  difficulty: string = 'easy';
+  gameDuration = 60; // 1 minute
+  timeLeft: number = this.gameDuration;
 
   constructor(public dialog: MatDialog, private router: Router, private gamePointsService: GamePointsService) {
     const navigation = this.router.getCurrentNavigation();
@@ -48,14 +50,16 @@ export class ScrambledWordsComponent implements OnInit {
       this.currentCategory = (navigation.extras.state as { category: Category }).category;
     }
   }
+
   ngOnInit(): void {
     console.log('Current category:', this.currentCategory);
     this.updateCurrentWord();
     if (this.currentCategory && this.currentCategory.words) {
       this.shuffleArray(this.currentCategory.words);
     }
+    
+    
   }
-
 
   openDialog(): void {
     const dialogRef = this.dialog.open(ExitGameComponent, {
@@ -71,9 +75,8 @@ export class ScrambledWordsComponent implements OnInit {
 
   updateCurrentWord() {
     if (this.currentCategory && this.currentCategory.words.length > this.currentWordIndex) {
-
       this.currentWord = this.currentCategory.words[this.currentWordIndex];
-      this.scrambledWord = this.scrambleString(this.currentWord.origin);  // Rescramble the word
+      this.scrambledWord = this.scrambleString(this.currentWord.origin); // Rescramble the word
     } else {
       console.error('No words available or category is undefined');
     }
@@ -86,7 +89,6 @@ export class ScrambledWordsComponent implements OnInit {
     }
   }
 
-
   scrambleString(str: string): string {
     let arr = str.split('');
     for (let i = arr.length - 1; i > 0; i--) {
@@ -95,6 +97,7 @@ export class ScrambledWordsComponent implements OnInit {
     }
     return arr.join('').toLocaleUpperCase();
   }
+
   nextWord() {
     if (this.currentCategory && this.currentWordIndex < this.currentCategory.words.length - 1) {
       this.currentWordIndex++;
@@ -103,15 +106,7 @@ export class ScrambledWordsComponent implements OnInit {
         this.scrambledWord = this.scrambleString(this.currentWord.origin);
       }
     } else {
-      if (this.currentCategory) {
-        let newGame = new gamePLayed(this.currentCategory.id, this.gamePointsService.getNewGameId(), new Date(), this.score);
-        this.gamePointsService.addGamePlayed(newGame);
-        this.router.navigate(['/sumscram'], { state: { category: this.currentCategory ,
-          guesses: this.guesses
-        } });
-
-
-      }
+      this.endGame();
     }
   }
 
@@ -129,11 +124,9 @@ export class ScrambledWordsComponent implements OnInit {
         success: userInput === correctWord,
         message: userInput === correctWord ? 'You guessed right! + 1 point' : 'Incorrect guess, -1 point!'
       }
-    }
-    );
+    });
 
     dialogRef.afterClosed().subscribe(result => {
-
       this.nextWord();
       this.userInput = '';
       this.progress += 100 / (this.currentCategory?.words.length || 1);
@@ -142,13 +135,60 @@ export class ScrambledWordsComponent implements OnInit {
       } else {
         this.score--;
       }
-
     });
   }
 
   clearInput() {
     this.userInput = '';
     console.log(this.score);
+  }
 
+  updateTimeLeft(timeLeft: number) {
+    this.timeLeft = timeLeft;
+  }
+
+  
+  changeDifficulty(difficulty: string) {
+    let timeLeft: number;
+  
+    switch(difficulty) {
+      case 'easy':
+        timeLeft = 300; // 300 seconds for easy difficulty
+        break;
+      case 'medium':
+        timeLeft = 200; // 200 seconds for medium difficulty
+        break;
+      case 'hard':
+        timeLeft = 100; // 100 seconds for hard difficulty
+        break;
+      default:
+        timeLeft = 300; // default to easy difficulty
+    }
+  
+    this.updateTimeLeft(timeLeft);
+  }
+  endGame() {
+    if (this.currentCategory) {
+      // Ensure timeLeft and score are not undefined
+      if (this.timeLeft !== undefined && this.score !== undefined) {
+        let newGame = new GamePlayed(
+          this.currentCategory.id,
+          this.gamePointsService.getNewGameId(),
+          new Date(),
+          this.score,
+          this.gameDuration - this.timeLeft,
+          this.gameDuration
+        );
+        this.gamePointsService.addGamePlayed(newGame);
+        this.router.navigate(['/sumscram'], {
+          state: {
+            category: this.currentCategory,
+            guesses: this.guesses
+          }
+        });
+      } else {
+        console.error('timeLeft or score is undefined');
+      }
+    }
   }
 }

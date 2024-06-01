@@ -8,6 +8,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { SummaryDashComponent } from './scrambled-words-module/summary-dash/summary-dash.component';
 import { WordSorterMainComponent } from './word-sorter-module/word-sorter-main/word-sorter-main.component';
 import { SummarySorterComponent } from './word-sorter-module/summary-sorter/summary-sorter.component';
+import { TimeManagementComponent } from './time-management/time-management.component';
 
 export const routes: Routes = [
     {path: "", component: DashboardComponent},
@@ -19,5 +20,7 @@ export const routes: Routes = [
     {path: "scrambled", component: ScrambledWordsComponent},
     {path: "sumscram", component: SummaryDashComponent},
     {path: "sorter", component: WordSorterMainComponent},
-    {path: "sumsort", component: SummarySorterComponent}
+    {path: "sumsort", component: SummarySorterComponent},
+    {path: "timer", component: TimeManagementComponent}
+
 ];

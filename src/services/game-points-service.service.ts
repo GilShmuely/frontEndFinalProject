@@ -6,6 +6,7 @@ import { categories } from '../shared/data/categories';
 export class GamePointsService {
   private GamePlayed: any[];
   private gameID = 0;
+  
 
   constructor() {
     this.GamePlayed = [];
@@ -67,4 +68,6 @@ export class GamePointsService {
     const uniqueCategoryIDs = new Set(categoryIDs);
     return uniqueCategoryIDs.size;
   }
+
+  
 }

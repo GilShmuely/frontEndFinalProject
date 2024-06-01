@@ -1,3 +1,4 @@
+<app-timer [difficulty]="difficulty" (reportTimeLeft)="updateTimeLeft($event)"></app-timer>
 <div class="container">
     <h1>Word sorter - {{currentCategory?.name}}</h1>
     <p>Is word <strong>{{randomWords[currentWordIndex]}}</strong> part of the
