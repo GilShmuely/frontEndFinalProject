@@ -19,7 +19,7 @@ export class CategoryViewComponent implements OnInit {
 
   }
   ngOnInit() :void{
-    this.allCategories = this.categoryService.list();
+    this.categoryService.list().then((result: Category[]) => (this.allCategories = result))
     console.log(this.allCategories)
     console.log('Categories:', this.allCategories);
     console.log('Categories:', this.allCategories[0].words);

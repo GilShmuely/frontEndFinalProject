@@ -43,6 +43,7 @@ export class ScrambledWordsComponent implements OnInit {
   difficulty: string = 'easy';
   gameDuration = 60; // 1 minute
   timeLeft: number = this.gameDuration;
+  newGame: GamePlayed | undefined;
 
   constructor(public dialog: MatDialog, private router: Router, private gamePointsService: GamePointsService) {
     const navigation = this.router.getCurrentNavigation();
@@ -145,6 +146,9 @@ export class ScrambledWordsComponent implements OnInit {
 
   updateTimeLeft(timeLeft: number) {
     this.timeLeft = timeLeft;
+    if (timeLeft === 0) {
+      this.endGame();
+    }
   }
 
   
@@ -169,26 +173,31 @@ export class ScrambledWordsComponent implements OnInit {
   }
   endGame() {
     if (this.currentCategory) {
-      // Ensure timeLeft and score are not undefined
       if (this.timeLeft !== undefined && this.score !== undefined) {
-        let newGame = new GamePlayed(
+        this.newGame = new GamePlayed(
           this.currentCategory.id,
-          this.gamePointsService.getNewGameId(),
+          this.currentGame?.id || '2',  
           new Date(),
           this.score,
-          this.gameDuration - this.timeLeft,
-          this.gameDuration
+          this.timeLeft,
+          this.gameDuration - this.timeLeft
         );
-        this.gamePointsService.addGamePlayed(newGame);
-        this.router.navigate(['/sumscram'], {
-          state: {
-            category: this.currentCategory,
-            guesses: this.guesses
-          }
+        this.gamePointsService.addGamePlayed(this.newGame).then(() => {
+          this.router.navigate(['/sumscram'], {
+            state: {
+              category: this.currentCategory,
+              guesses: this.guesses
+            }
+          });
+        }).catch(error => {
+          console.error('Error adding game:', error);
         });
       } else {
         console.error('timeLeft or score is undefined');
       }
     }
   }
+  
+  
+
 }

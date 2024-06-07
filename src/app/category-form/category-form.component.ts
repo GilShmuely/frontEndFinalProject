@@ -28,7 +28,7 @@ import { TranslatedWord } from '../../shared/model/translated-word';
   styleUrl: './category-form.component.css',
 })
 export class CategoryFormComponent implements OnInit { 
-  currentCategory = new Category(0,"", Language.English, Language.Hebrew, new Date());
+  currentCategory: Category = new Category("0","", Language.English, Language.Hebrew, new Date());
   displayedColumns: string[] = ["Origin", "Target", "Actions"];
 
   @Input()
@@ -40,20 +40,21 @@ export class CategoryFormComponent implements OnInit {
     private router : Router){}
 
   ngOnInit(): void {
-    if (this.id) {
-      let categoryData = this.categoriesService.get(parseInt(this.id)); 
-
-      if (categoryData) {
-        this.currentCategory = categoryData;
+        if (this.id) {
+          let categoryData = this.categoriesService.get((this.id)); 
+          this.categoriesService.get(this.id).then((categoryData) => {
+            if(categoryData){
+              this.currentCategory = categoryData;
+            }
+          });
+        }
       }
-    }
-  }
 
-  addWord() {
-    this.currentCategory.words = 
-      [...this.currentCategory.words, 
-        new TranslatedWord("", "")];
- }
+      addWord() {
+        this.currentCategory.words = 
+          [...this.currentCategory.words, 
+            new TranslatedWord("", "")];
+     }
 
   deleteWord(index : number) {
     let extendedWordsList = Array.from(this.currentCategory.words);
@@ -65,10 +66,9 @@ export class CategoryFormComponent implements OnInit {
   saveCategory() {
     if (this.id) {
       this.categoriesService.update(this.currentCategory);
+      this.router.navigate(['']);
     } else {
-      this.categoriesService.add(this.currentCategory);
+      this.categoriesService.add(this.currentCategory).then(() => this.router.navigate(['']));
     }
-
-    this.router.navigate(['']);
   }
 }

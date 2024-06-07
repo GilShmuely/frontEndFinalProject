@@ -16,5 +16,5 @@ export class GameDataService {
     return Array.from(this.games.values());
   }
   
-
+  
 }

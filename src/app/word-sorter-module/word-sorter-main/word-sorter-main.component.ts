@@ -20,7 +20,8 @@ import { TimerComponent } from "../../time-management/timer/timer.component";
 })
 export class WordSorterMainComponent implements OnInit {
   currentCategory: Category | undefined;
-  allCategories = this.categoryService.list();
+  dataSource: Category[] = [];
+  allCategories = this.categoryService.list().then((result: Category[]) => (this.dataSource = result))
   allWords: string[] = [];
   randomWords: string[] = [];
   progress: number = 0;
@@ -31,24 +32,36 @@ export class WordSorterMainComponent implements OnInit {
   grade: number = 0;
   gameDuration = 300; // Example duration in seconds (5 minutes)
   timeLeft: number = this.gameDuration;
-  difficulty: string = 'medium'; 
+  difficulty: string = 'medium';
+  newGame: GamePlayed | undefined;
 
-  constructor(private router: Router, private categoryService: CategoriesService, private dialog: MatDialog, private gamePointsService: GamePointsService) {
+  constructor(
+    private router: Router,
+    private categoryService: CategoriesService,
+    private dialog: MatDialog,
+    private gamePointsService: GamePointsService
+  ) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation && navigation.extras.state) {
-      this.currentCategory = (navigation.extras.state as { category: Category }).category;
+      const state = navigation.extras.state as { category: Category, gameID: string };
+      this.currentCategory = state.category;
     }
-    this.allWords = this.allCategories.flatMap(category => category.words.map(word => word.origin));
   }
 
   ngOnInit(): void {
-    if (this.currentCategory) {
-      this.randomWords = this.shuffleArray([
-        ...this.getRandomWords(this.currentCategory.words.map(word => word.origin), 3),
-        ...this.getRandomWords(this.allWords, 3)
-      ]);
-    }
+    this.categoryService.list().then((categories: Category[]) => {
+      this.dataSource = categories;
+      this.allWords = categories.flatMap(category => category.words.map(word => word.origin));
+
+      if (this.currentCategory) {
+        this.randomWords = this.shuffleArray([
+          ...this.getRandomWords(this.currentCategory.words.map(word => word.origin), 3),
+          ...this.getRandomWords(this.allWords, 3)
+        ]);
+      }
+    });
   }
+
 
   getRandomWords(words: string[], count: number): string[] {
     let result = [];
@@ -61,61 +74,45 @@ export class WordSorterMainComponent implements OnInit {
   }
 
   nextWord(): void {
-    console.log('currentWordIndex:', this.currentWordIndex);
-    console.log('randomWords.length:', this.randomWords.length);
-    console.log('currentCategory:', this.currentCategory);
     if (this.currentWordIndex < this.randomWords.length - 1) {
-      console.log('Incrementing currentWordIndex');
       this.currentWordIndex++;
     } else {
-      console.log('Creating newGame');
       if (this.currentCategory && this.timeLeft !== undefined) {
-        let newGame = new GamePlayed(
-          this.currentCategory.id,
-          this.gamePointsService.getNewGameId(),
-          new Date(),
-          this.grade,
-          this.gameDuration - this.timeLeft,
-          this.gameDuration
-        );
-        this.gamePointsService.addGamePlayed(newGame);
-        console.log('newGame:', newGame);
-        this.router.navigate(['/sumsort'], {
-          state: {
-            category: this.currentCategory,
-            guesses: this.guesses
-          }
-        });
+        this.endGame();
       } else {
         console.error('currentCategory or timeLeft is undefined');
       }
     }
-    console.log('grade:', this.grade);
   }
 
-  openDialog(userClickedYes: boolean): void {
-    const correct = this.isCorrectWord();
 
+  async openDialog(userClickedYes: boolean): Promise<void> {
+    const correct = this.isCorrectWord();
+  
     let wordCategory = '';
-    for (let category of this.allCategories) {
+    for (let category of await this.allCategories) {
       if (category.words.some(word => word.origin === this.randomWords[this.currentWordIndex])) {
         wordCategory = category.name;
         break;
       }
     }
-
+  
+    const isCorrect = (userClickedYes && correct) || (!userClickedYes && !correct);
+  
     this.guesses.push({
       origin: this.randomWords[this.currentWordIndex],
       Category: wordCategory,
-      isCorrect: correct
+      isCorrect: isCorrect
     });
-
+  
     let success = false;
-    if ((userClickedYes && correct) || (!userClickedYes && !correct)) {
+    if (isCorrect) {
       success = true;
       this.grade++;
+    } else {
+      this.grade--;
     }
-
+  
     const dialogRef = this.dialog.open(SuccessDialogComponent, {
       width: '250px',
       data: {
@@ -123,17 +120,14 @@ export class WordSorterMainComponent implements OnInit {
         message: success ? 'You got it right!' : 'You got it wrong!'
       }
     });
-
+  
     dialogRef.afterClosed().subscribe(result => {
       this.nextWord();
       this.progress += 100 / this.totalWords;
-      if (result === true) {
-        this.grade++;
-      } else {
-        this.grade--;
-      }
     });
   }
+  
+
 
   isCorrectWord(): boolean {
     if (this.currentCategory && this.randomWords.length > this.currentWordIndex) {
@@ -141,6 +135,7 @@ export class WordSorterMainComponent implements OnInit {
     }
     return false;
   }
+
 
   shuffleArray(array: any[]): any[] {
     for (let i = array.length - 1; i > 0; i--) {
@@ -158,6 +153,30 @@ export class WordSorterMainComponent implements OnInit {
   }
 
   endGame() {
-    // Logic to handle end of game
+    if (this.currentCategory) {
+      if (this.timeLeft !== undefined && this.grade !== undefined) {
+        this.newGame = new GamePlayed(
+          this.currentCategory.id,
+          '3',  // Ensure correct gameID
+          new Date(),
+          this.grade,
+          this.timeLeft,
+          this.gameDuration - this.timeLeft
+        );
+        this.gamePointsService.addGamePlayed(this.newGame).then(() => {
+          this.router.navigate(['/sumsort'], {
+            state: {
+              category: this.currentCategory,
+              guesses: this.guesses
+            }
+          });
+        }).catch(error => {
+          console.error('Error adding game:', error);
+        });
+      } else {
+        console.error('timeLeft or grade is undefined');
+      }
+    }
   }
+
 }

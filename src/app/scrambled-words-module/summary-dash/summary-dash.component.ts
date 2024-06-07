@@ -55,9 +55,5 @@ export class SummaryDashComponent implements OnInit {
     const totalGames = games.length;
     const totalDuration = games.reduce((acc, game) => acc + game.secondsPlayed, 0);
     const completedGames = games.filter(game => game.secondsLeftInGame === 0).length;
-
-    this.averageGameDuration = totalDuration / totalGames;
-    this.totalPlayTime = totalDuration;
-    this.completionRate = (completedGames / totalGames) * 100;
   }
 }

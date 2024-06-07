@@ -17,13 +17,19 @@ export class DashboardComponent implements OnInit {
   highestScoreGameName: string | null = null;
   lowestScoreGameName: string | null = null;
   amountOfCategoriesPlayed: number = 0;
+  averageGameTime: number = 0;
+  totalGameTime: number = 0;
+  percentageOfGamesCompletedOnTime: number = 0;
 
   constructor(private gamePointsService: GamePointsService) { }
 
-  ngOnInit(): void {
-    this.totalGamesPlayed = this.gamePointsService.getTotalGamesPlayed();
-    this.totalPoints = this.gamePointsService.getTotalPoints();
-    this.mostPlayedCategoryName = this.gamePointsService.getMostFrequentCategoryName();
-    this.amountOfCategoriesPlayed = this.gamePointsService.getUniqueCategoryCount();
+  async ngOnInit(): Promise<void> {
+    this.totalGamesPlayed = await this.gamePointsService.getTotalGamesPlayed();
+    this.totalPoints = await this.gamePointsService.getTotalPoints();
+    this.mostPlayedCategoryName = await this.gamePointsService.getMostFrequentCategory();
+    this.amountOfCategoriesPlayed = await this.gamePointsService.getUniqueCategoryCount();
+    this.averageGameTime = await this.gamePointsService.getAverageGameTime();
+    this.totalGameTime = await this.gamePointsService.getTotalGameTime();
+    this.percentageOfGamesCompletedOnTime = await this.gamePointsService.getPercentageOfGamesCompletedOnTime();
   }
 }
